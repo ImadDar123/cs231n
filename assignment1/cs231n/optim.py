@@ -67,7 +67,8 @@ def sgd_momentum(w, dw, config=None):
     # TODO: Implement the momentum update formula. Store the updated value in #
     # the next_w variable. You should also use and update the velocity v.     #
     ###########################################################################
-
+    v = config["momentum"] * v - config["learning_rate"] * dw
+    next_w = w + v
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -101,7 +102,10 @@ def rmsprop(w, dw, config=None):
     # in the next_w variable. Don't forget to update cache value stored in    #
     # config['cache'].                                                        #
     ###########################################################################
-
+    cache = config['decay_rate'] * config['cache'] + (1 - config['decay_rate']) * dw ** 2
+    config['cache'] = cache
+    next_w = w - (config['learning_rate'] * dw / (np.sqrt(cache) + config['epsilon']))
+    
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
@@ -142,7 +146,15 @@ def adam(w, dw, config=None):
     # NOTE: In order to match the reference output, please modify t _before_  #
     # using it in any calculations.                                           #
     ###########################################################################
-
+    config["t"] += 1
+    learning_rate, beta1, beta2, epsilon, m, v, t = config["learning_rate"], config["beta1"], config["beta2"], config["epsilon"], config["m"], config["v"], config["t"]
+    m = beta1 * m + (1 - beta1) * dw
+    config["m"] = m
+    mt = m / (1 - beta1 ** t)
+    v = beta2 * v + (1 - beta2) * dw ** 2
+    config["v"] = v
+    vt = v / (1 - beta2 ** t)
+    next_w = w - learning_rate * mt / (np.sqrt(vt) + epsilon)
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
