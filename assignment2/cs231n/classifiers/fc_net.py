@@ -158,6 +158,7 @@ class FullyConnectedNet(object):
         cache = {}
         cache_act = {}
         cache_norm = {}
+        cache_dropout = {}
         for i in range(self.num_layers):
             scores, cache[i + 1] = affine_forward(scores, self.params['W' + str(i + 1)], self.params['b' + str(i + 1)])
             if i != self.num_layers - 1:
@@ -166,6 +167,8 @@ class FullyConnectedNet(object):
                                                               self.params['beta' + str(i + 1)], self.bn_params[i])
                     
                 scores, cache_act[i + 1] = relu_forward(scores)
+                if self.use_dropout:
+                    scores, cache_dropout[i + 1] = dropout_forward(scores, self.dropout_param)
                 
                 
             
@@ -200,6 +203,8 @@ class FullyConnectedNet(object):
         
         for i in range(self.num_layers, 0, -1):
             if i != self.num_layers:
+                if self.use_dropout:
+                    grad = dropout_backward(grad, cache_dropout[i])
                 grad = relu_backward(grad, cache_act[i])
                 if self.normalization == "batchnorm":
                     grad, grads['gamma' + str(i)], grads['beta' + str(i)] = batchnorm_backward_alt(grad, cache_norm[i])
