@@ -282,9 +282,8 @@ class FullyConnectedNet(object):
         if self.normalization == "batchnorm":
             for bn_param in self.bn_params:
                 bn_param["mode"] = mode
-        scores = X
-        cache = {}
-        cache_act = {}
+        scores = None
+        
         ############################################################################
         # TODO: Implement the forward pass for the fully connected net, computing  #
         # the class scores for X and storing them in the scores variable.          #
@@ -297,6 +296,9 @@ class FullyConnectedNet(object):
         # self.bn_params[1] to the forward pass for the second batch normalization #
         # layer, etc.                                                              #
         ############################################################################
+        scores = X
+        cache = {}
+        cache_act = {}
         for i in range(self.num_layers):
             scores, cache[i + 1] = affine_forward(scores, self.params['W' + str(i + 1)], self.params['b' + str(i + 1)])
             if i != self.num_layers - 1:
